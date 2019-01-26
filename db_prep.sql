@@ -6,5 +6,5 @@ USE wwtn;
 SET NAMES 'latin1';
 DROP USER IF EXISTS wwtn;
 CREATE USER 'wwtn' IDENTIFIED BY 'supersecretpassword';
-GRANT ALL PRIVILEGES ON wwtn.* TO 'wwtn';
+GRANT SELECT ON wwtn.* TO 'wwtn';
 FLUSH PRIVILEGES;

@@ -12,7 +12,7 @@ CREATE TABLE associated_people (
   uid char(5) default NULL,
   relationship tinyint(4) default NULL,
   pid int(11) default NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `associated_people`
@@ -4991,7 +4991,7 @@ CREATE TABLE convent (
   reason_left tinytext,
   note tinytext,
   from_type enum('entry','clothing','founder','return','transfer','other') default NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `convent`
@@ -9172,7 +9172,7 @@ CREATE TABLE convents (
   cid tinyint(4) NOT NULL auto_increment,
   religorder tinyint(4) default NULL,
   PRIMARY KEY  (cid)
-) ENGINE=MyISAM AUTO_INCREMENT=41 DEFAULT CHARSET=utf8mb4;
+) ENGINE=MyISAM AUTO_INCREMENT=41 DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `convents`
@@ -9212,7 +9212,7 @@ CREATE TABLE creative_works (
   idx tinyint(4) default NULL,
   role varchar(20) default NULL,
   description varchar(100) default NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `creative_works`
@@ -9423,7 +9423,7 @@ CREATE TABLE link_types (
   idx tinyint(4) default NULL,
   role1 varchar(20) default NULL,
   role2 varchar(20) default NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `link_types`
@@ -9451,7 +9451,7 @@ CREATE TABLE linkages (
   uid1 char(5) default NULL,
   idx tinyint(4) default NULL,
   uid2 char(5) default NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `linkages`
@@ -13596,7 +13596,7 @@ CREATE TABLE locations (
   place varchar(20) default NULL,
   date_from char(4) default NULL,
   date_to char(4) default NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `locations`
@@ -13639,7 +13639,7 @@ CREATE TABLE notes (
   uid char(5) default NULL,
   idx tinyint(4) default NULL,
   note mediumtext
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `notes`
@@ -16222,7 +16222,7 @@ CREATE TABLE nuns (
   pbirth int(11) default NULL,
   pdeath int(11) default NULL,
   PRIMARY KEY  (uid)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `nuns`
@@ -20145,7 +20145,7 @@ CREATE TABLE office (
   date_from varchar(30) default NULL,
   date_until varchar(30) default NULL,
   note varchar(20) default NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `office`
@@ -21956,7 +21956,7 @@ CREATE TABLE offices (
   office varchar(20) default NULL,
   ranking tinyint(4) default NULL,
   PRIMARY KEY  (idx)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `offices`
@@ -21993,7 +21993,7 @@ CREATE TABLE pdfs (
   idx int(11) NOT NULL auto_increment,
   `name` varchar(20) default NULL,
   PRIMARY KEY  (idx)
-) ENGINE=MyISAM AUTO_INCREMENT=175 DEFAULT CHARSET=utf8mb4;
+) ENGINE=MyISAM AUTO_INCREMENT=175 DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `pdfs`
@@ -22181,7 +22181,7 @@ INSERT INTO pdfs VALUES (172,'Yate');
 CREATE TABLE pdfxuids (
   idx int(11) default NULL,
   uid char(5) default NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `pdfxuids`
@@ -23989,7 +23989,7 @@ CREATE TABLE people (
   note varchar(50) default NULL,
   distinguish varchar(4) default NULL,
   PRIMARY KEY  (pid)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `people`
@@ -27529,7 +27529,7 @@ INSERT INTO people VALUES (4171,'','Mary','Browne','','','');
 CREATE TABLE people_places (
   pid int(11) NOT NULL default '0',
   plid int(11) default NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `people_places`
@@ -29756,7 +29756,7 @@ CREATE TABLE places (
   loc varchar(20) default NULL,
   o_p tinyint(1) default NULL,
   PRIMARY KEY  (plid)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `places`
@@ -31088,7 +31088,7 @@ CREATE TABLE professions (
   age_profession varchar(10) default NULL,
   dowry varchar(70) default NULL,
   note tinytext
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `professions`
@@ -34452,7 +34452,7 @@ INSERT INTO professions VALUES ('PC132',9,'1727 20 Feb','27',NULL,NULL);
 CREATE TABLE quotes (
   uid char(5) NOT NULL,
   PRIMARY KEY  (uid)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `quotes`
@@ -35729,7 +35729,7 @@ CREATE TABLE relationships (
   idx tinyint(4) NOT NULL,
   relationship varchar(20) default NULL,
   PRIMARY KEY  (idx)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `relationships`
@@ -35779,7 +35779,7 @@ CREATE TABLE religorders (
   ordid tinyint(4) NOT NULL auto_increment,
   `name` varchar(20) default NULL,
   PRIMARY KEY  (ordid)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `religorders`
@@ -35804,7 +35804,7 @@ CREATE TABLE srcdocs (
   srcid int(11) NOT NULL auto_increment,
   srcname varchar(100) default NULL,
   PRIMARY KEY  (srcid)
-) ENGINE=MyISAM AUTO_INCREMENT=214 DEFAULT CHARSET=utf8mb4;
+) ENGINE=MyISAM AUTO_INCREMENT=214 DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `srcdocs`
@@ -36024,7 +36024,7 @@ CREATE TABLE srcrefs (
   srcid int(11) default NULL,
   itemref varchar(70) default NULL,
   PRIMARY KEY  (refid)
-) ENGINE=MyISAM AUTO_INCREMENT=4025 DEFAULT CHARSET=utf8mb4;
+) ENGINE=MyISAM AUTO_INCREMENT=4025 DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `srcrefs`
@@ -39828,7 +39828,7 @@ INSERT INTO srcrefs VALUES (4024,99,'I, 241-4, II, 114-8, 123, 141, 183');
 CREATE TABLE srcxcids (
   srcid int(11) default NULL,
   cid tinyint(4) default NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `srcxcids`
@@ -40080,7 +40080,7 @@ INSERT INTO srcxcids VALUES (211,16);
 CREATE TABLE srcxuids (
   refid int(11) default NULL,
   uid char(5) default NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `srcxuids`
@@ -47716,7 +47716,7 @@ INSERT INTO srcxuids VALUES (4022,'RP218');
 CREATE TABLE variants (
   idx smallint(6) default NULL,
   variant varchar(30) default NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `variants`

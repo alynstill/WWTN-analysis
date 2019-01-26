@@ -7,7 +7,14 @@
 # it's not clear whether this url is version-specific - so it should be checked against the links published on the WWTN website
 curl -o dbsetup.sql https://wwtn.history.qmul.ac.uk/database-static/101746.txt
 
-perl -i -pe 's/DEFAULT CHARSET=latin1/DEFAULT CHARSET=utf8mb4/' dbsetup.sql
+echo About to prepare database.
+echo Enter password for MySQL user:
+mysql -u  root -p < db_prep.sql
 
-mysql -u root -p < db_prep.sql
-mysql -u wwtn -psupersecretpassword wwtn < dbsetup.sql
+echo About to set up WWTN base data.
+echo Enter password for MySQL user:
+mysql -u root -p wwtn < dbsetup.sql
+
+echo About to create mart.
+echo Enter password for MySQL user:
+mysql -u root -p wwtn < create_mart.sql
