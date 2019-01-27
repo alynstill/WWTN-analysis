@@ -120,6 +120,8 @@ CREATE TABLE convent (
   from_year int,
   from_month int,
   from_day int,
+  from_min date default null,
+  from_max date default null,
   age_entry varchar(30) default NULL,
   age_entry_clean int,
   `type` enum('choir','lay','unknown','white') default NULL,
@@ -128,6 +130,8 @@ CREATE TABLE convent (
   left_year int,
   left_month int,
   left_day int,
+  left_min date default null,
+  left_max date default null,
   reason_left tinytext,
   note tinytext,
   from_type enum('entry','clothing','founder','return','transfer','other') default NULL,
@@ -171,10 +175,14 @@ CREATE TABLE nuns (
   birth_year int,
   birth_month int,
   birth_day int,
+  birth_min date default null,
+  birth_max date default null,
   date_death varchar(30) default NULL,
   death_year int,
   death_month int,
   death_day int,
+  death_min date default null,
+  death_max date default null,
   age_death varchar(10) default NULL,
   age_death_clean int,
   national_identity varchar(20) default NULL,
@@ -228,10 +236,14 @@ FROM `WWTN`.`nuns`;
   from_year int,
   from_month int,
   from_day int,
+  from_min date default null,
+  from_max date default null,
   date_until varchar(30) default NULL,
   until_year int,
   until_month int,
   until_day int,
+  until_min date default null,
+  until_max date default null,
   note varchar(20) default NULL,
   conventcode varchar(2),  
   successor_uid char(5) default NULL
@@ -259,6 +271,8 @@ select * from WWTN.convents;
   profession_year int,
   profession_month int,
   profession_day int,
+  profession_min date default null,
+  profession_max date default null,
   age_profession varchar(10) default NULL,
   age_profession_clean int,
   dowry varchar(70) default NULL,
@@ -272,10 +286,10 @@ insert into professions(uid,ordid,date_profession,age_profession,dowry,note,conv
 select uid,ordid,date_profession,age_profession,dowry,note,left(uid,2) from WWTN.professions;
 
 
- UPDATE convent
+UPDATE convent
 SET
-    from_year = WWTNDatePart(date_from,'y')
-,    from_month = WWTNDatePart(date_from,'m'),
+    from_year = WWTNDatePart(date_from,'y'),
+    from_month = WWTNDatePart(date_from,'m'),
     from_day = WWTNDatePart(date_from,'d')
 WHERE
     date_from IS NOT NULL;
@@ -293,6 +307,26 @@ WHERE
 update convent
 set age_entry_clean = cast(left(age_entry,2) as unsigned)
  where age_entry is not null;
+
+update convent
+set from_min = WWTNDateEst(from_year,
+							from_month,
+							from_day,
+							'min') 
+, from_max = WWTNDateEst(from_year,
+							from_month,
+							from_day,
+							'max') 
+, left_min = WWTNDateEst(left_year,
+							left_month,
+							left_day,
+							'min') 
+, left_max = WWTNDateEst(left_year,
+							left_month,
+							left_day,
+							'max') ;
+
+
 UPDATE nuns
 SET
     birth_year = WWTNDatePart(date_birth,'y'),
@@ -316,6 +350,10 @@ where date_death is not null;
  update nuns
  set age_death_clean = WWTNAge(age_death)
  where age_death is not null;
+
+
+;
+
 
  update office
  set from_year = WWTNDatePart(date_from,'y')
