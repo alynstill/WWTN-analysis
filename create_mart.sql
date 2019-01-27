@@ -106,8 +106,8 @@ INSERT INTO convent
 `date_left`,
 `reason_left`,
 `note`,
-`from_type`,
-`conventcode`
+`from_type`
+
 )
 SELECT `convent`.`uid`,
     `convent`.`cid`,
@@ -118,8 +118,8 @@ SELECT `convent`.`uid`,
     `convent`.`date_left`,
     `convent`.`reason_left`,
     `convent`.`note`,
-    `convent`.`from_type`,
-	left(`convent`.`uid`,2)
+    `convent`.`from_type`
+
 FROM `WWTN`.`convent`;
 
 drop table if exists nuns;
@@ -162,8 +162,7 @@ INSERT INTO `WWTN_Mart`.`nuns`
 `note`,
 `namequal`,
 `pbirth`,
-`pdeath`,
-`conventcode`)
+`pdeath`)
 
 SELECT `nuns`.`uid`,
     `nuns`.`forename`,
@@ -177,8 +176,7 @@ SELECT `nuns`.`uid`,
     `nuns`.`note`,
     `nuns`.`namequal`,
     `nuns`.`pbirth`,
-    `nuns`.`pdeath`,
-    left(`nuns`.`uid`,2)
+    `nuns`.`pdeath`
 FROM `WWTN`.`nuns`;
 
 
@@ -201,8 +199,8 @@ FROM `WWTN`.`nuns`;
   successor_uid char(5) default NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
- insert into office (uid,cid,officeid,date_from,date_until,note,conventcode)
- select uid,cid,officeid,date_from,date_until,note,left(uid,2)
+ insert into office (uid,cid,officeid,date_from,date_until,note)
+ select uid,cid,officeid,date_from,date_until,note
  from wwtn.office;
 
 
@@ -298,7 +296,39 @@ where date_death is not null;
  update professions
  set dowry = REPLACE(dowry, '~', '')
  where dowry is not null;
- 
+
+
+drop table if exists conventcodes;
+create table conventcodes (cid tinyint,ConventCode nvarchar(2));
+
+insert into conventcodes(cid,ConventCode)
+SELECT 
+    c.cid
+    , case when c.cid = 40 then 'PT'
+			when c.cid=21 then 'MW'
+            when c.cid=9 then 'OB'
+            else CONCAT(LEFT(l.place, 1), LEFT(r.name, 1))
+    end as ConventCode    
+FROM
+    wwtn_mart.convents AS c
+        LEFT JOIN
+    wwtn.locations AS l ON c.cid = l.cid
+        LEFT JOIN
+    wwtn.religorders AS r ON c.religorder = r.ordid
+;
+
+UPDATE wwtn_mart.office , wwtn_mart.conventcodes
+set wwtn_mart.office.conventcode = wwtn_mart.conventcodes.conventcode
+where wwtn_mart.office.cid = wwtn_mart.conventcodes.cid
+;
+
+-- where the date of leaving office is not known, use the date of death
+update wwtn_mart.office, wwtn_mart.nuns
+set wwtn_mart.office.until_year = wwtn_mart.nuns.death_year
+where wwtn_mart.office.uid = wwtn_mart.nuns.uid 
+and wwtn_mart.office.date_until is null 
+and wwtn_mart.nuns.death_year is not null
+;
  
  drop view if exists prioress_professions; 
  
@@ -344,18 +374,21 @@ where date_death is not null;
 			wwtn_mart.office AS o
 		INNER JOIN wwtn.offices AS os ON o.officeid = os.idx
 			AND os.office = 'Prioress'
-		INNER JOIN wwtn_mart.nuns AS nun ON o.uid = nun.uid) AS pri
-			LEFT JOIN
-		wwtn_mart.professions AS prof ON pri.conventcode = prof.conventcode
-			AND prof.profession_year >= pri.from_year
+		INNER JOIN wwtn_mart.nuns AS nun ON o.uid = nun.uid
+        ) AS pri
+			LEFT JOIN wwtn_mart.professions AS prof 
+        ON pri.conventcode = prof.conventcode
+			AND prof.profession_year >= ifnull(pri.from_year,0)
 			AND IFNULL(prof.profession_month, 13) >= IFNULL(pri.from_month, 0)
-			AND prof.profession_year <= pri.until_year
+			AND prof.profession_year <= ifnull(pri.until_year,2000)
 			AND IFNULL(prof.profession_month, 0) <= IFNULL(pri.until_month, 13)
 			LEFT JOIN
 		wwtn_mart.nuns AS n ON prof.uid = n.uid
 	ORDER BY pri.from_year , pri.pri.until_year , prof.profession_year , prof.profession_month 
  )
  
+
+
  -- select * from professions;
  -- select * from convent;
 -- select * from nuns;
