@@ -1,4 +1,5 @@
 create database if not exists wwtn_mart;
+GRANT SELECT ON wwtn_mart.* TO 'wwtn';
 USE `wwtn_mart`;
 DROP function IF EXISTS `WWTNDatePart`;
 
@@ -91,7 +92,8 @@ CREATE TABLE convent (
   left_day int,
   reason_left tinytext,
   note tinytext,
-  from_type enum('entry','clothing','founder','return','transfer','other') default NULL
+  from_type enum('entry','clothing','founder','return','transfer','other') default NULL,
+  conventcode char(2) default NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 INSERT INTO convent
@@ -104,7 +106,9 @@ INSERT INTO convent
 `date_left`,
 `reason_left`,
 `note`,
-`from_type`)
+`from_type`,
+`conventcode`
+)
 SELECT `convent`.`uid`,
     `convent`.`cid`,
     `convent`.`date_from`,
@@ -114,9 +118,9 @@ SELECT `convent`.`uid`,
     `convent`.`date_left`,
     `convent`.`reason_left`,
     `convent`.`note`,
-    `convent`.`from_type`
+    `convent`.`from_type`,
+	left(`convent`.`uid`,2)
 FROM `WWTN`.`convent`;
-
 
 drop table if exists nuns;
 
@@ -141,7 +145,8 @@ CREATE TABLE nuns (
   namequal enum('bapt?','no bapt','no relig') default NULL,
   pbirth int(11) default NULL,
   pdeath int(11) default NULL,
-  PRIMARY KEY  (uid)
+  PRIMARY KEY  (uid),
+  conventcode varchar(2) default NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 INSERT INTO `WWTN_Mart`.`nuns`
@@ -157,7 +162,8 @@ INSERT INTO `WWTN_Mart`.`nuns`
 `note`,
 `namequal`,
 `pbirth`,
-`pdeath`)
+`pdeath`,
+`conventcode`)
 
 SELECT `nuns`.`uid`,
     `nuns`.`forename`,
@@ -171,7 +177,8 @@ SELECT `nuns`.`uid`,
     `nuns`.`note`,
     `nuns`.`namequal`,
     `nuns`.`pbirth`,
-    `nuns`.`pdeath`
+    `nuns`.`pdeath`,
+    left(`nuns`.`uid`,2)
 FROM `WWTN`.`nuns`;
 
 
@@ -189,11 +196,13 @@ FROM `WWTN`.`nuns`;
   until_year int,
   until_month int,
   until_day int,
-  note varchar(20) default NULL
+  note varchar(20) default NULL,
+  conventcode varchar(2),  
+  successor_uid char(5) default NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
- insert into office (uid,cid,officeid,date_from,date_until,note)
- select uid,cid,officeid,date_from,date_until,note
+ insert into office (uid,cid,officeid,date_from,date_until,note,conventcode)
+ select uid,cid,officeid,date_from,date_until,note,left(uid,2)
  from wwtn.office;
 
 
@@ -210,7 +219,6 @@ select * from WWTN.convents;
  CREATE TABLE professions (
   uid char(5) default NULL,
   ordid tinyint(4) default NULL,
-  cid tinyint(4),
   date_profession varchar(30) default NULL,
   profession_year int,
   profession_month int,
@@ -220,11 +228,12 @@ select * from WWTN.convents;
   dowry varchar(70) default NULL,
   dowry_amt int,
   dowry_currency varchar(70),
-  note tinytext
+  note tinytext,
+  conventcode nvarchar(2)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-insert into professions(uid,ordid,date_profession,age_profession,dowry,note)
-select uid,ordid,date_profession,age_profession,dowry,note from WWTN.professions;
+insert into professions(uid,ordid,date_profession,age_profession,dowry,note,conventcode)
+select uid,ordid,date_profession,age_profession,dowry,note,left(uid,2) from WWTN.professions;
 
 
  UPDATE convent
@@ -289,6 +298,64 @@ where date_death is not null;
  update professions
  set dowry = REPLACE(dowry, '~', '')
  where dowry is not null;
+ 
+ 
+ drop view if exists prioress_professions; 
+ 
+ create view prioress_professions as
+ (
+	SELECT 
+		pri.uid AS prioress_uid,
+		pri.cid,
+		pri.date_from,
+		pri.from_year,
+		pri.from_month,
+		pri.date_until,
+		pri.until_year,
+		pri.until_month,
+		pri.conventcode,
+		pri.name_religion,
+		pri.surname,
+		pri.forename,
+		prof.uid AS professee_uid,
+		prof.date_profession,
+		prof.profession_year,
+		prof.profession_month,
+		n.name_religion + n.surname AS professee
+	FROM
+		(SELECT 
+			o.uid,
+				o.cid,
+				o.officeid,
+				o.date_from,
+				o.from_year,
+				o.from_month,
+				o.from_day,
+				o.date_until,
+				o.until_year,
+				o.until_month,
+				o.until_day,
+				o.note,
+				o.conventcode,
+				nun.name_religion,
+				nun.surname,
+				nun.forename
+		FROM
+			wwtn_mart.office AS o
+		INNER JOIN wwtn.offices AS os ON o.officeid = os.idx
+			AND os.office = 'Prioress'
+		INNER JOIN wwtn_mart.nuns AS nun ON o.uid = nun.uid) AS pri
+			LEFT JOIN
+		wwtn_mart.professions AS prof ON pri.conventcode = prof.conventcode
+			AND prof.profession_year >= pri.from_year
+			AND IFNULL(prof.profession_month, 13) >= IFNULL(pri.from_month, 0)
+			AND prof.profession_year <= pri.until_year
+			AND IFNULL(prof.profession_month, 0) <= IFNULL(pri.until_month, 13)
+			LEFT JOIN
+		wwtn_mart.nuns AS n ON prof.uid = n.uid
+	ORDER BY pri.from_year , pri.pri.until_year , prof.profession_year , prof.profession_month 
+ )
+ 
  -- select * from professions;
  -- select * from convent;
 -- select * from nuns;
