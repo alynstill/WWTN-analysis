@@ -59,6 +59,44 @@ END $$
 
 DELIMITER ;
 
+drop function if exists WWTNDateEst;
+DELIMITER $$
+USE `wwtn_mart`$$
+CREATE FUNCTION `WWTNDateEst` (year_part int,month_part int, day_part int, estimatetype varchar(3))
+RETURNS Date
+BEGIN
+
+set @WWTNDateEst = makedate(year_part
+							,1
+							);
+
+if month_part is not null 
+	then set @WWTNDateEst = date_add( @WWTNDateEst, INTERVAL month_part-1 MONTH);
+elseif estimatetype = 'min' 
+	then set @WWTNDateEst = date_add( @WWTNDateEst, INTERVAL 0 MONTH);
+elseif estimatetype = 'max'
+	then set @WWTNDateEst = date_add( @WWTNDateEst, INTERVAL 11 MONTH);
+end if;
+
+
+if day_part is not null 
+	then set @WWTNDateEst = date_add(@WWTNDateEst, INTERVAL day_part - 1 DAY);
+elseif estimatetype ='min' 
+	then set @WWTNRateEst = @WWTNDateEst ;-- date will already be the first of the month - so no need to change anything;
+elseif estimatetype = 'max'
+	then set @WWTNDateEst = date_sub(	date_add(@WWTNDateEst
+												, INTERVAL 1 MONTH
+                                                )
+									, INTERVAL 1 DAY
+                                    ); -- For max estimate - we want the end of the month, so add one month (to give 1st of next month) then take away one day
+end if;
+
+return @WWTNDateEst;
+
+END $$
+
+DELIMITER ;
+
 drop table if exists associated_people;
 CREATE TABLE associated_people (
     uid CHAR(5) DEFAULT NULL,
