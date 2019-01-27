@@ -321,7 +321,7 @@ where date_death is not null;
 		prof.date_profession,
 		prof.profession_year,
 		prof.profession_month,
-		n.name_religion + n.surname AS professee
+		concat_ws(', ', ifnull(n.name_religion,'NK'), ifnull(n.surname,'NK') ) AS professee
 	FROM
 		(SELECT 
 			o.uid,
