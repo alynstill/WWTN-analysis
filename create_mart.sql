@@ -351,7 +351,23 @@ where date_death is not null;
  set age_death_clean = WWTNAge(age_death)
  where age_death is not null;
 
-
+update nuns
+set birth_min = WWTNDateEst(birth_year,
+							birth_month,
+							birth_day,
+							'min')
+, birth_max  = WWTNDateEst(birth_year,
+							birth_month,
+							birth_day,
+							'max')
+, death_min  = WWTNDateEst(death_year,
+							death_month,
+							death_day,
+							'min')
+, death_max = WWTNDateEst(death_year,
+							death_month,
+							death_day,
+							'max') ;
 ;
 
 
@@ -363,6 +379,26 @@ where date_death is not null;
  , until_month = WWTNDatePart(date_until,'m')
  , until_day = WWTNDatePart(date_until,'d');
 
+update office
+set from_min = WWTNDateEst(from_year,
+							from_month,
+							from_day,
+							'min'),
+from_max = WWTNDateEst(from_year,
+							from_month,
+							from_day,
+							'max'),
+until_min = WWTNDateEst(until_year,
+							until_month,
+							until_day,
+							'min'),
+until_max = WWTNDateEst(until_year,
+							until_month,
+							until_day,
+							'max')
+;
+
+
  update professions
  set profession_year = WWTNDatePart(date_profession,'y')
  , profession_month = WWTNDatePart(date_profession,'m')
@@ -373,6 +409,15 @@ where date_death is not null;
  set dowry = REPLACE(dowry, '~', '')
  where dowry is not null;
 
+update professions
+set profession_min = WWTNDateEst(profession_year,
+							profession_month,
+							profession_day,
+							'min'),
+profession_max = WWTNDateEst(profession_year,
+							profession_month,
+							profession_day,
+							'max');
 
 drop table if exists conventcodes;
 create table conventcodes (cid tinyint,ConventCode nvarchar(2));
@@ -401,6 +446,8 @@ where wwtn_mart.office.cid = wwtn_mart.conventcodes.cid
 -- where the date of leaving office is not known, use the date of death
 update wwtn_mart.office, wwtn_mart.nuns
 set wwtn_mart.office.until_year = wwtn_mart.nuns.death_year
+, until_min = death_min
+, until_max = death_max
 where wwtn_mart.office.uid = wwtn_mart.nuns.uid 
 and wwtn_mart.office.date_until is null 
 and wwtn_mart.nuns.death_year is not null
@@ -416,9 +463,13 @@ and wwtn_mart.nuns.death_year is not null
 		pri.date_from,
 		pri.from_year,
 		pri.from_month,
+        pri.from_min,
+        pri.from_max,
 		pri.date_until,
 		pri.until_year,
 		pri.until_month,
+        pri.until_min,
+        pri.until_max,
 		pri.conventcode,
 		pri.name_religion,
 		pri.surname,
@@ -427,6 +478,8 @@ and wwtn_mart.nuns.death_year is not null
 		prof.date_profession,
 		prof.profession_year,
 		prof.profession_month,
+        prof.profession_min,
+        prof.profession_max,
 		concat_ws(', ', ifnull(n.name_religion,'NK'), ifnull(n.surname,'NK') ) AS professee
 	FROM
 		(SELECT 
@@ -437,10 +490,14 @@ and wwtn_mart.nuns.death_year is not null
 				o.from_year,
 				o.from_month,
 				o.from_day,
+                o.from_min,
+                o.from_max,
 				o.date_until,
 				o.until_year,
 				o.until_month,
 				o.until_day,
+                o.until_min,
+                o.until_max,
 				o.note,
 				o.conventcode,
 				nun.name_religion,
@@ -453,19 +510,17 @@ and wwtn_mart.nuns.death_year is not null
 		INNER JOIN wwtn_mart.nuns AS nun ON o.uid = nun.uid
         ) AS pri
 			LEFT JOIN wwtn_mart.professions AS prof 
-        ON pri.conventcode = prof.conventcode
-			AND prof.profession_year >= ifnull(pri.from_year,0)
-			AND IFNULL(prof.profession_month, 13) >= IFNULL(pri.from_month, 0)
-			AND prof.profession_year <= ifnull(pri.until_year,2000)
-			AND IFNULL(prof.profession_month, 0) <= IFNULL(pri.until_month, 13)
-			LEFT JOIN
-		wwtn_mart.nuns AS n ON prof.uid = n.uid
+				ON pri.conventcode = prof.conventcode
+					and prof.profession_max >= pri.from_min -- professed after the prioress took office
+                    and prof.profession_min <= pri.until_max -- professed before the prioress left office
+			LEFT JOIN wwtn_mart.nuns AS n 
+				ON prof.uid = n.uid
 	ORDER BY pri.from_year , pri.pri.until_year , prof.profession_year , prof.profession_month 
  )
- 
 
 
- -- select * from professions;
- -- select * from convent;
+
+-- select * from professions;
+-- select * from convent;
 -- select * from nuns;
 -- select * from office;
