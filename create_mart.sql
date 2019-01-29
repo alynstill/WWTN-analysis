@@ -370,7 +370,6 @@ set birth_min = WWTNDateEst(birth_year,
 							'max') ;
 ;
 
-
  update office
  set from_year = WWTNDatePart(date_from,'y')
  , from_month = WWTNDatePart(date_from,'m')
@@ -448,6 +447,7 @@ update wwtn_mart.office, wwtn_mart.nuns
 set wwtn_mart.office.until_year = wwtn_mart.nuns.death_year
 , until_min = death_min
 , until_max = death_max
+, date_until = date_death
 where wwtn_mart.office.uid = wwtn_mart.nuns.uid 
 and wwtn_mart.office.date_until is null 
 and wwtn_mart.nuns.death_year is not null
