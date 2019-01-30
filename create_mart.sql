@@ -516,11 +516,50 @@ and wwtn_mart.nuns.death_year is not null
 			LEFT JOIN wwtn_mart.nuns AS n 
 				ON prof.uid = n.uid
 	ORDER BY pri.from_year , pri.pri.until_year , prof.profession_year , prof.profession_month 
- )
+ );
 
 
+drop procedure if exists makeyrs;
 
--- select * from professions;
--- select * from convent;
--- select * from nuns;
--- select * from office;
+DELIMITER $$
+CREATE PROCEDURE `makeyrs` ()
+BEGIN
+
+	declare yr int default 1500;
+
+	drop table if exists yrs;
+	create table yrs  (yr int, yearstart date, yearend date);
+    
+	while yr<=1900
+		DO
+			insert into yrs(yr,yearstart,yearend) values (yr,makedate(yr,1),makedate(yr,1));
+			set yr = yr+1;
+	end while;
+    
+
+END $$
+
+DELIMITER ;
+
+call makeyrs;
+
+create view Years_x_Offices as (
+		select 
+		 yrs.yr
+		 , yrs.yearstart
+		 , yrs.yearend
+		 , o.uid as officeholder
+		 , o.cid
+		 , o.date_from
+		 , o.from_min
+		 , o.from_max
+		 , o.until_min
+		 , o.until_max
+		 ,o.conventcode
+		from yrs
+		left join office as o
+		on o.from_min <= yrs.yearend
+		and o.until_max >= yearstart
+	)
+;
+
