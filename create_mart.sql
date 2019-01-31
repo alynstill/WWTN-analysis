@@ -543,6 +543,7 @@ DELIMITER ;
 
 call makeyrs;
 
+drop view if exists Years_x_Offices;
 create view Years_x_Offices as (
 		select 
 		 yrs.yr
@@ -562,4 +563,23 @@ create view Years_x_Offices as (
 		and o.until_max >= yearstart
 	)
 ;
-
+drop view if exists Years_x_Professions;
+create view Years_x_Professions as (
+		select 
+		 yrs.yr
+		 , yrs.yearstart
+		 , yrs.yearend
+		 , p.uid
+		 , p.profession_min
+         , p.profession_max
+		 , p.date_profession
+         , p.ordid
+         , p.dowry
+         , p.dowry_amt
+         , p.dowry_currency
+         , p.conventcode
+		from yrs
+		left join professions as p
+		on p.profession_year  = yrs.yr
+	)
+;
